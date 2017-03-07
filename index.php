@@ -2,7 +2,7 @@
 /*
   Software Name: Database Backupper
   Plugin URI: https://github.com/nadavrt/database-backupper
-  Description: A database backup application for easy singular database maintanance, complete with a sleek GUI and security options.
+  Description: A database backup application for easy singular database maintenance, complete with a sleek GUI and security options.
   Version: 1
   Author: Nadav Rotchild
   Author URI: http://www.nadavr.com
@@ -16,7 +16,7 @@ include 'header.php';
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Doctor</title>
+	<title>Database Backupper</title>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 	<link href='http://fonts.googleapis.com/css?family=Ubuntu:400,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
