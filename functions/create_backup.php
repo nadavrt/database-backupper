@@ -2,7 +2,7 @@
 require '../credentials.php';
 $createFile = ( isset($_POST['sqlFile']) )? TRUE:FALSE;
 $createZip = ( isset($_POST['zipFile']) )? TRUE:FALSE;
-create_backup(DB_NAME,DB_USER,DB_HOST,DB_PASSWORD,DB_CHARSET,'*',$createFile,$createZip);
+create_backup(DB_NAME, DB_USER, DB_HOST, DB_PASSWORD, DB_CHARSET, '*', $createFile,$createZip);
 
 /** 
 *	Export a database to SQL form in gzip format.
@@ -16,7 +16,7 @@ create_backup(DB_NAME,DB_USER,DB_HOST,DB_PASSWORD,DB_CHARSET,'*',$createFile,$cr
 *	@param  Boolean $createZip Whether or not to create a zipped SQL file. Defaults to FALSE.
 *	@return Array The relative links for the SQL and or ZIP files that were created.
 **/
-function create_backup($dbName,$dbUser,$dbHost,$dbPass,$dbCharset,$tables = '*',$createFile = TRUE,$createZip = FALSE)
+function create_backup($dbName, $dbUser, $dbHost, $dbPass, $dbCharset, $tables = '*', $createFile = TRUE, $createZip = FALSE)
 {
 	if ( !$createFile && !$createZip ) return;
 
@@ -76,6 +76,8 @@ function create_backup($dbName,$dbUser,$dbHost,$dbPass,$dbCharset,$tables = '*',
 	$filesUrl = array( 'sql' => 'backups/sql/' . $fileName .'.sql' );
 
 	//save the SQL file to the server uploads directory
+	if ( !file_exists('../backups') ) { mkdir('../backups', 0777, TRUE); }
+	if ( !file_exists('../backups/sql') ) { mkdir('../backups/sql', 0777, TRUE); }
 	$handle = fopen( '../backups/sql/' . $fileName .'.sql','w+');
 	fwrite($handle,$return);
 	fclose($handle);
@@ -84,6 +86,7 @@ function create_backup($dbName,$dbUser,$dbHost,$dbPass,$dbCharset,$tables = '*',
 	{
 		if ( class_exists( 'ZipArchive' ) )
 		{
+			if ( !file_exists('../backups/zip') ) { mkdir('../backups/zip', 0777, TRUE); }
 			$zip = new ZipArchive;
 			$zip->open('../backups/zip/' . $fileName . ".zip", ZipArchive::CREATE);
 	      	    $zip->addFile('../backups/sql/' . $fileName . '.sql', $fileName . '.sql');

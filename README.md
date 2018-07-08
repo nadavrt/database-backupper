@@ -12,9 +12,12 @@ A database backup application for easy singular database maintenance, complete w
 
 ### How To Setup
 
-Clone the repository files into an accessible folder on your server and you are set to go.
+Clone the repository files into an accessible folder on your server and update credentials.php with the credentials of the target database.
 
 ### Screenshots
+![create database](http://nadavr.com/img/github/db-create.jpg "Create Database")
+![import database](http://nadavr.com/img/github/db-import.jpg "Import Database")
+![create database](http://nadavr.com/img/github/db-settings.jpg "Database Settings")
 
 ### Disclaimer
 

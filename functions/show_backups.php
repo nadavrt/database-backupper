@@ -9,119 +9,125 @@ function get_backups()
 	//Check if this file was loaded by the index or by an ajax call
 	$sqlDir = (isset($_POST['ajax']))? '../backups/sql/':'backups/sql/';
 	$zipDir = (isset($_POST['ajax']))? '../backups/zip/':'backups/zip/';
+	$sql = array();
+	$zip = array();
 
-	$sql = scandir($sqlDir);
-	$dot = array_search('.', $sql);
-	$doubleDot = array_search('..', $sql);
-	if ( $dot !== FALSE ) unset($sql[$dot]); 
-	if ( $doubleDot !== FALSE ) unset($sql[$doubleDot]); 
+	if ( file_exists($sqlDir) )
+	{
+		$sql = scandir($sqlDir);
+		$dot = array_search('.', $sql);
+		$doubleDot = array_search('..', $sql);
+		if ( $dot !== FALSE ) unset($sql[$dot]); 
+		if ( $doubleDot !== FALSE ) unset($sql[$doubleDot]); 		
+	}
 
-	$zip = scandir($zipDir);
-	$dot = array_search('.', $zip);
-	$doubleDot = array_search('..', $zip);
-	if ( $dot !== FALSE ) unset($zip[$dot]); 
-	if ( $doubleDot !== FALSE ) unset($zip[$doubleDot]);
+	if ( file_exists($zipDir) )
+	{
+		$zip = scandir($zipDir);
+		$dot = array_search('.', $zip);
+		$doubleDot = array_search('..', $zip);
+		if ( $dot !== FALSE ) unset($zip[$dot]); 
+		if ( $doubleDot !== FALSE ) unset($zip[$doubleDot]);
+	}
 	
-	$backups = array();
 	$sqlCount = count($sql);
 	$zipCount = count($zip);
+	if ( $sqlCount+$zipCount == 0 ) return array();
 	
-	if ( ($sqlCount+$zipCount) != 0 )
+	$backups = array();
+	if ( $sqlCount >= $zipCount )
 	{
-		if ( $sqlCount >= $zipCount )
+		foreach ($sql as $file) 
 		{
-			foreach ($sql as $file) 
+			$fileName = explode('.sql', $file);
+			$fileName = $fileName[0];
+			$created = explode('-', $fileName);
+			$created =  $created[count($created)-1];
+			
+			$zipFile = array_search($fileName . '.zip', $zip);
+			if ( $zipFile !== FALSE )
 			{
-				$fileName = explode('.sql', $file);
-				$fileName = $fileName[0];
-				$created = explode('-', $fileName);
-				$created =  $created[count($created)-1];
-				
-				$zipFile = array_search($fileName . '.zip', $zip);
-				if ( $zipFile !== FALSE )
-				{
-					unset($zip[$zipFile]);
-					$backups[$created] = array(
-						'name' => $fileName,
-						'created' => $created,
-						'sql' => $fileName . '.sql',
-						'zip' => $fileName . '.zip'
-					);
-
-				}
-				else $backups[$created] = array(
-						'name' => $fileName,
-						'created' => $created,
-						'sql' => $fileName . '.sql',
-						'zip' => FALSE
-				);
-			}
-
-			foreach ($zip as $file) 
-			{
-				$fileName = explode('.zip', $file);
-				$fileName = $fileName[0];
-				$created = explode('-', $fileName);
-				$created =  $created[count($created)-1];
-
-				//If there is already an array key with this name search for an open array key position.
-				while ( isset($backups[$created]) )
-				{
-					$created = (int)$created + 1;
-				}
-				$backups[$created] = array(
-						'name' => $fileName,
-						'created' => $created,
-						'sql' => FALSE,
-						'zip' => $fileName . '.zip'
-				);
-			}
-		}
-		else
-		{
-			foreach ($zip as $file) 
-			{
-				$fileName = explode('.zip', $file);
-				$fileName = $fileName[0];
-				$created = explode('-', $fileName);
-				$created =  $created[count($created)-1];
-				
-				$sqlFile = array_search($fileName . '.sql', $sql);
-				if ( $sqlFile !== FALSE )
-				{
-					unset($sql[$sqlFile]);
-					$sqlFile = $fileName . '.sql';
-				}
-				
-				$backups[$created] = array(
-					'name' => $fileName,
-					'created' => $created,
-					'sql' => $sqlFile,
-					'zip' => $fileName . '.zip'
-				);
-
-			}
-
-			foreach ($sql as $file)
-			{
-				//If there is already an array key with this name search for an open array key position.
-				while ( isset($backups[$created]) )
-				{
-					$created = (int)$created + 1;
-				}
-
-				$fileName = explode('.sql', $file);
-				$fileName = $fileName[0];
-				$created = explode('-', $fileName);
-				$created =  $created[count($created)-1];
+				unset($zip[$zipFile]);
 				$backups[$created] = array(
 					'name' => $fileName,
 					'created' => $created,
 					'sql' => $fileName . '.sql',
-					'zip' => FALSE
+					'zip' => $fileName . '.zip'
 				);
+
 			}
-		}		
+			else $backups[$created] = array(
+					'name' => $fileName,
+					'created' => $created,
+					'sql' => $fileName . '.sql',
+					'zip' => FALSE
+			);
+		}
+
+		foreach ($zip as $file) 
+		{
+			$fileName = explode('.zip', $file);
+			$fileName = $fileName[0];
+			$created = explode('-', $fileName);
+			$created =  $created[count($created)-1];
+
+			//If there is already an array key with this name search for an open array key position.
+			while ( isset($backups[$created]) )
+			{
+				$created = (int)$created + 1;
+			}
+			$backups[$created] = array(
+					'name' => $fileName,
+					'created' => $created,
+					'sql' => FALSE,
+					'zip' => $fileName . '.zip'
+			);
+		}
+	}
+	else
+	{
+		foreach ($zip as $file) 
+		{
+			$fileName = explode('.zip', $file);
+			$fileName = $fileName[0];
+			$created = explode('-', $fileName);
+			$created =  $created[count($created)-1];
+			
+			$sqlFile = array_search($fileName . '.sql', $sql);
+			if ( $sqlFile !== FALSE )
+			{
+				unset($sql[$sqlFile]);
+				$sqlFile = $fileName . '.sql';
+			}
+			
+			$backups[$created] = array(
+				'name' => $fileName,
+				'created' => $created,
+				'sql' => $sqlFile,
+				'zip' => $fileName . '.zip'
+			);
+
+		}
+
+		foreach ($sql as $file)
+		{
+			//If there is already an array key with this name search for an open array key position.
+			while ( isset($backups[$created]) )
+			{
+				$created = (int)$created + 1;
+			}
+
+			$fileName = explode('.sql', $file);
+			$fileName = $fileName[0];
+			$created = explode('-', $fileName);
+			$created =  $created[count($created)-1];
+			$backups[$created] = array(
+				'name' => $fileName,
+				'created' => $created,
+				'sql' => $fileName . '.sql',
+				'zip' => FALSE
+			);
+		}
 	}
 	
 	krsort( $backups ); //Asort by DSC order.
